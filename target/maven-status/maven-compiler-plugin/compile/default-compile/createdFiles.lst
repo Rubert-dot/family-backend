@@ -1,0 +1,10 @@
+com\familymemories\backend\BackendApplication.class
+com\familymemories\backend\repository\PhotoRepository.class
+com\familymemories\backend\config\FamilyAuthInterceptor.class
+com\familymemories\backend\config\WebConfig.class
+com\familymemories\backend\controller\PhotoController.class
+com\familymemories\backend\controller\EventController.class
+com\familymemories\backend\model\Photo.class
+com\familymemories\backend\controller\AuthController.class
+com\familymemories\backend\repository\EventRepository.class
+com\familymemories\backend\model\Event.class
