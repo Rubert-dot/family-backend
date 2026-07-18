@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(origins = "https://kudumbauravugal.onrender.com")
 public class EventController {
 
     private final JdbcTemplate jdbcTemplate;
@@ -43,18 +43,18 @@ public class EventController {
             if (title == null || title.isBlank()) {
                 return ResponseEntity.badRequest().body("Title is required");
             }
+            
+           
             if (eventDateStr == null || eventDateStr.isBlank()) {
                 return ResponseEntity.badRequest().body("Event date is required");
             }
 
-            // ஜாவா JPA டேட் எரர் வராமல் தடுக்க நேரடியாக SQL Query மூலம் இன்செர்ட் செய்கிறோம்
             String sql = "INSERT INTO events (title, description, event_date, created_by, created_at) VALUES (?, ?, ?, ?, NOW())";
             jdbcTemplate.update(sql, title, description, eventDateStr, createdBy);
 
             return ResponseEntity.status(HttpStatus.CREATED).body("{\"status\":\"success\"}");
 
         } catch (Exception e) {
-            // அசல் எரரை ஃபிரண்ட் எண்டிற்கு அனுப்புகிறது
             return ResponseEntity.internalServerError().body("Database Error: " + e.getMessage());
         }
     }
