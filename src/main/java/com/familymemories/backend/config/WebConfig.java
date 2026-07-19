@@ -17,8 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         Path uploadPath = Paths.get(userDir, "uploads").toAbsolutePath().normalize();
         String uploadFolderUrl = uploadPath.toUri().toString();
 
-        // செக்யூரிட்டி இன்டர்செப்டார் ஃபைல் அப்லோடு ஃபோல்டரைத் தொடாமல் இருக்க 
-        // ஸ்பிரிங் பூட்டோட ரிசோர்ஸ் லொகேஷனில் ஸ்ட்ராங்காக ரிஜிஸ்டர் செய்கிறோம்
+       
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadFolderUrl)
                 .setCachePeriod(3600);
