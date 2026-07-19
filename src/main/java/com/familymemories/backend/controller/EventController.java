@@ -10,11 +10,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true")
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin(origins = "https://kudumbauravugal.onrender.com")
+
 public class EventController {
 
     private final JdbcTemplate jdbcTemplate;
