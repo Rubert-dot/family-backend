@@ -19,7 +19,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/photos")
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(
+    origins = {"*"}, 
+    allowedHeaders = {"*"}, 
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
+) // 🟢 பிக்ஸ்: " * " இடைவெளி நீக்கப்பட்டு சரியான அரே ஃபார்மட்டாக மாற்றப்பட்டுள்ளது!
 public class PhotoController {
 
     private final JdbcTemplate jdbcTemplate;
@@ -75,7 +79,6 @@ public class PhotoController {
             String imagePath = "/uploads/" + storedFileName;
             String title = (caption != null && !caption.isBlank()) ? caption : originalName;
 
-            // தீர்வு: uploader_name காலத்தையும் சேர்த்து SQL கொரியில் அனுப்புகிறோம்!
             String sql = "INSERT INTO photos (album_name, file_name, image_path, title, uploader_name, uploaded_at) VALUES (?, ?, ?, ?, ?, NOW())";
             jdbcTemplate.update(sql, albumName, storedFileName, imagePath, title, uploaderName);
 

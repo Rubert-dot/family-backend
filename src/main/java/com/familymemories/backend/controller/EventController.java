@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/events")
-
+@CrossOrigin(origins = "*", allowedHeaders = "*") 
 public class EventController {
 
     private final JdbcTemplate jdbcTemplate;
@@ -44,7 +44,6 @@ public class EventController {
                 return ResponseEntity.badRequest().body("Title is required");
             }
             
-           
             if (eventDateStr == null || eventDateStr.isBlank()) {
                 return ResponseEntity.badRequest().body("Event date is required");
             }
