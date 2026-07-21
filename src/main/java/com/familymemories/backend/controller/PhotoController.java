@@ -1,7 +1,11 @@
 package com.familymemories.backend.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,24 +23,54 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/photos")
 @CrossOrigin(
     origins = {"*"}, 
     allowedHeaders = {"*"}, 
     methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS}
-) // 🟢 பிக்ஸ்: " * " இடைவெளி நீக்கப்பட்டு சரியான அரே ஃபார்மட்டாக மாற்றப்பட்டுள்ளது!
+) 
 public class PhotoController {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${app.upload.dir}")
+    @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
     public PhotoController(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @GetMapping
+   
+    @GetMapping("/uploads/{fileName:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String fileName) {
+        try {
+            String userDir = System.getProperty("user.dir");
+            Path filePath = Paths.get(userDir, "uploads").resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+               
+                String contentType = Files.probeContentType(filePath);
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
+                }
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (MalformedURLException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    
+   
+    @GetMapping("/api/photos")
     public List<Map<String, Object>> getPhotos(@RequestParam(required = false) String album) {
         if (album != null && !album.isBlank()) {
             return jdbcTemplate.queryForList("SELECT * FROM photos WHERE album_name = ? ORDER BY uploaded_at DESC", album);
@@ -43,12 +78,12 @@ public class PhotoController {
         return jdbcTemplate.queryForList("SELECT * FROM photos ORDER BY uploaded_at DESC");
     }
 
-    @GetMapping("/albums")
+    @GetMapping("/api/photos/albums")
     public List<String> getAlbumNames() {
         return jdbcTemplate.queryForList("SELECT DISTINCT album_name FROM photos", String.class);
     }
 
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping(value = "/api/photos", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadPhoto(
             @RequestParam("file") MultipartFile file,
             @RequestParam("albumName") String albumName,
@@ -91,7 +126,7 @@ public class PhotoController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/photos/{id}")
     public ResponseEntity<?> deletePhoto(@PathVariable Long id) {
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList("SELECT file_name FROM photos WHERE id = ?", id);

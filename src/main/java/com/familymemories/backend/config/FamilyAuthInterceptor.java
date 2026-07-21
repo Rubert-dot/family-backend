@@ -17,15 +17,14 @@ public class FamilyAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // Let CORS preflight through untouched
+       
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
 
         String path = request.getRequestURI();
 
-        // <img> tags can't send custom headers, so photo files are checked
-        // via query params instead: /uploads/xyz.jpg?email=...&password=...
+        
         String email;
         String password;
         if (path.startsWith("/uploads/")) {
